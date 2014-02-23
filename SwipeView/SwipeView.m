@@ -100,6 +100,8 @@
     _wrapEnabled = NO;
     _itemsPerPage = 1;
     _truncateFinalPage = NO;
+	_itemsToPreloadForward = 0;
+	_itemsToPreloadBackward = 0;
     _defersItemViewLoading = NO;
     _vertical = NO;
     
@@ -951,6 +953,19 @@
             NSInteger index = [self clampedIndex:i + startIndex];
             [visibleIndices addObject:@(index)];
         }
+		
+		NSMutableSet *preloadedIndices = [NSMutableSet setWithCapacity:_itemsToPreloadForward + _itemsToPreloadBackward];
+		for (NSInteger i = 0; i <= _itemsToPreloadForward; i++)
+		{
+			NSInteger index = [self clampedIndex:startIndex + i];
+			[preloadedIndices addObject:@(index)];
+		}
+		
+		for (NSInteger i = 0; i <= _itemsToPreloadBackward; i++)
+		{
+			NSInteger index = [self clampedIndex:startIndex - i];
+			[preloadedIndices addObject:@(index)];
+		}
         
         //remove offscreen views
         for (NSNumber *number in [_itemViews allKeys])
@@ -966,6 +981,16 @@
         
         //add onscreen views
         for (NSNumber *number in visibleIndices)
+        {
+            UIView *view = _itemViews[number];
+            if (view == nil)
+            {
+                [self loadViewAtIndex:[number integerValue]];
+            }
+        }
+		
+		//add preloadedViews
+        for (NSNumber *number in preloadedIndices)
         {
             UIView *view = _itemViews[number];
             if (view == nil)
