@@ -970,7 +970,7 @@
         //remove offscreen views
         for (NSNumber *number in [_itemViews allKeys])
         {
-            if (![visibleIndices containsObject:number])
+            if (![visibleIndices containsObject:number] && ![preloadedIndices containsObject:number])
             {
                 UIView *view = _itemViews[number];
                 [self queueItemView:view];
